@@ -24,9 +24,9 @@ function start() {
   try {
     app.listen(PORT, () => {
       console.log(`Server has been started on port ${PORT}.`)
-    })
-  }catch(err) {
-    console.error(err)
+    });
+  } catch(e){
+    console.error(e)
   }
 }
 

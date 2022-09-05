@@ -15,6 +15,6 @@ router.post("/login", controller.login)
 router.post("/check", controller.checkEmailExisting)
 router.post("/verify", controller.verify)
 router.get("/refresh", controller.refreshToken)
-router.get("/test", controller.refreshToken)
+router.get("/", controller.mainPage)
 
 module.exports = router

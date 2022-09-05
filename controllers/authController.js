@@ -123,8 +123,8 @@ class AuthController {
 		}
 	}
 
-	refreshToken() {
-		res.json("test complieted")
+	mainPage(req, res) {
+		res.json("©Wolken Reiter")
 	}
 }
 
