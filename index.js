@@ -7,8 +7,7 @@ const router = require("./routes/authRouter")
 var whitelist = ['http://localhost:4200','http://localhost:8000', 'https://wolken-reiter.netlify.app']
 var corsOptions = {
   origin: function (origin, callback) {
-    // if (whitelist.indexOf(origin) !== -1) {
-    if (true) {
+    if (whitelist.indexOf(origin) !== -1) {
       callback(null, true)
     } else {
       callback(new Error('Not allowed by CORS'))
