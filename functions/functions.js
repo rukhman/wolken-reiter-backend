@@ -25,6 +25,22 @@ class User {
 	}
 }
 
+class Product {
+	constructor(productParams, userId) {
+		this.name = productParams.name
+		this.price = productParams.price
+		this.description = productParams.description
+		this.user_id = userId
+	}
+}
+
+class ProductImage {
+	constructor(image, productId) {
+		this.product_id = productId
+		this.image = image
+	}
+}
+
 class Functions {
 	async addUser(userParams) {
 		const user = new User(userParams)
@@ -77,7 +93,7 @@ class Functions {
 		const payload = { id, roles }
 		const currentDate = new Date();
 		const expiresAt = currentDate.setMinutes(currentDate.getMinutes() + 15);
-		const accessToken = jwt.sign(payload, process.env.SECRET, { expiresIn: 15 })
+		const accessToken = jwt.sign(payload, process.env.SECRET, { expiresIn: "15m" })
 		return { 
 			expiresAt,
 			accessToken
@@ -154,6 +170,53 @@ class Functions {
 				})
 		} 
 		catch (err) {
+			console.error(err.message)
+		}
+	}
+
+	async createProduct(productParams, user) {
+		try {
+			const userData = user.roles?.[0]
+			if(!userData) return
+			const product = new Product(productParams, userData.id)
+			const images = productParams.images
+			const responseProduct = await knex('products').insert(product).returning("*").limit(1).then(r => r[0])
+			images.forEach(async (img) => {
+				const image = new ProductImage(img, responseProduct.id)
+				await knex('product_images').insert(image)
+			})
+			return responseProduct
+		} catch (err) {
+			console.error(err.message)
+		}
+	}
+
+	async getProducts() {
+		try {
+			return await knex("products").limit(20)
+		} catch (err) {
+			console.error(err.message)
+		}
+	}
+
+	async getProductImages(id) {
+		try {
+			return await knex("product_images").select().where({ product_id: id })
+		} catch (err) {
+			console.error(err.message)
+		}
+	}
+
+	async getProductsWithImages() {
+		try {
+			const products = await this.getProducts()
+			const images = await Promise.all(products.map((p) => this.getProductImages(p.id)))
+			const productsWithImages = products.map((p, i) => ({
+				...p,
+				images: images[i] || null
+			}))
+			return productsWithImages
+		} catch (err) {
 			console.error(err.message)
 		}
 	}

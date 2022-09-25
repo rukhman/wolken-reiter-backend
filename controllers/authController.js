@@ -123,6 +123,24 @@ class AuthController {
 		}
 	}
 
+	async createNewProduct(req, res) {
+		try {
+			const product = await fn.createProduct(req.body, req.user)
+			res.json(product)
+		} catch(err) {
+			res.status(400).json({message: err.message});
+		}
+	}
+
+	async getProducts(req, res) {
+		try {
+			const productsWithImages = await fn.getProductsWithImages()
+			res.json(productsWithImages)
+		} catch(err) {
+			res.status(400).json({message: err.message});
+		}
+	}
+
 	mainPage(req, res) {
 		res.json("©Wolken Reiter")
 	}

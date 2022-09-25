@@ -15,6 +15,8 @@ router.post("/login", controller.login)
 router.post("/check", controller.checkEmailExisting)
 router.post("/verify", controller.verify)
 router.get("/refresh", controller.refreshToken)
+router.get("/products", controller.getProducts)
+router.post("/create-new-product", [authMiddleware], controller.createNewProduct)
 router.get("/", controller.mainPage)
 
 module.exports = router
