@@ -4,7 +4,7 @@ const app = express();
 const cors = require('cors')
 const router = require("./routes/authRouter")
 
-var whitelist = ['http://localhost:4200','http://localhost:8000', 'https://wolken-reiter.netlify.app']
+var whitelist = ['http://localhost:4200','localhost:8000', 'https://wolken-reiter.netlify.app']
 var corsOptions = {
   origin: function (origin, callback) {
     if (whitelist.indexOf(origin) !== -1) {

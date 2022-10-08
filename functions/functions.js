@@ -41,6 +41,20 @@ class ProductImage {
 	}
 }
 
+class FavoriteProduct {
+	constructor(productId, userId) {
+		this.product_id = productId
+		this.user_id = userId
+	}
+}
+
+class CartProduct {
+	constructor(productId, userId) {
+		this.product_id = productId
+		this.user_id = userId
+	}
+}
+
 class Functions {
 	async addUser(userParams) {
 		const user = new User(userParams)
@@ -191,9 +205,62 @@ class Functions {
 		}
 	}
 
-	async getProducts() {
+	async addToFavorite(productId, userId) {
 		try {
-			return await knex("products").limit(20)
+			const product = new FavoriteProduct(productId, userId)
+			const responseProduct = await knex('in_favorite').insert(product).returning("*").limit(1).then(r => r[0])
+			return responseProduct
+		} catch (err) {
+			console.error(err.message)
+		}
+	}
+
+	async addToCart(productId, userId) {
+		try {
+			const product = new CartProduct(productId, userId)
+			const responseProduct = await knex('in_cart').insert(product).returning("*").limit(1).then(r => r[0])
+			return responseProduct
+		} catch (err) {
+			console.error(err.message)
+		}
+	}
+
+	async findProductsInFavoriteById(id) {
+		const shortProducts = await knex('in_favorite').select().where({ user_id: id }).returning("*")
+		const products = await this.getProductsWithImages(shortProducts.map(p => p.product_id))
+		return products;
+	};
+
+	async findProductsInCartById(id) {
+		const shortProducts = await knex('in_cart').select().where({ user_id: id }).returning("*")
+		const products = await this.getProductsWithImages(shortProducts.map(p => p.product_id))
+		return products;
+	};
+
+	async deleteFromFavorite(productId, userId) {
+		const products = await knex('in_favorite').where({ product_id: productId, user_id: userId }).del().returning("*").limit(1).then(r => r[0])
+		return products;
+	};
+
+	async deleteFromCart(productId, userId) {
+		const products = await knex('in_cart').where({ product_id: productId, user_id: userId }).del().returning("*").limit(1).then(r => r[0])
+		return products;
+	};
+
+	async getProducts(ids = null) {
+		try {
+			return ids ? 
+			await Promise.all(ids
+				.map(
+					id => knex("products")
+					.select()
+					.where({ id })
+					.returning("*")
+					.limit(1)
+					.then(r => r[0])
+				)
+			):
+			await knex("products").limit(20)
 		} catch (err) {
 			console.error(err.message)
 		}
@@ -207,9 +274,9 @@ class Functions {
 		}
 	}
 
-	async getProductsWithImages() {
+	async getProductsWithImages(ids = null) {
 		try {
-			const products = await this.getProducts()
+			const products = await this.getProducts(ids)
 			const images = await Promise.all(products.map((p) => this.getProductImages(p.id)))
 			const productsWithImages = products.map((p, i) => ({
 				...p,

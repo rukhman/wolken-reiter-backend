@@ -132,6 +132,60 @@ class AuthController {
 		}
 	}
 
+	async addToFavorite(req, res) {
+		try {
+			const product = await fn.addToFavorite(req.body.product, req.user.id)
+			res.json(product)
+		} catch(err) {
+			res.status(400).json({message: err.message});
+		}
+	}
+
+	async addToCart(req, res) {
+		try {
+			const product = await fn.addToCart(req.body.product, req.user.id)
+			res.json(product)
+		} catch(err) {
+			res.status(400).json({message: err.message});
+		}
+	}
+
+	async getFromFavorite(req, res) {
+		try {
+			const products = await fn.findProductsInFavoriteById(req.user.id)
+			res.json(products)
+		} catch(err) {
+			res.status(400).json({message: err.message});
+		}
+	}
+
+	async getFromCart(req, res) {
+		try {
+			const products = await fn.findProductsInCartById(req.user.id)
+			res.json(products)
+		} catch(err) {
+			res.status(400).json({message: err.message});
+		}
+	}
+
+	async deleteFromFavorite(req, res) {
+		try {
+			const products = await fn.deleteFromFavorite(req.query.product, req.user.id)
+			res.json(products)
+		} catch(err) {
+			res.status(400).json({message: err.message});
+		}
+	}
+
+	async deleteFromCart(req, res) {
+		try {
+			const products = await fn.deleteFromCart(req.query.product, req.user.id)
+			res.json(products)
+		} catch(err) {
+			res.status(400).json({message: err.message});
+		}
+	}
+
 	async getProducts(req, res) {
 		try {
 			const productsWithImages = await fn.getProductsWithImages()
