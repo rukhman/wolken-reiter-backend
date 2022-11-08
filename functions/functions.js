@@ -205,20 +205,14 @@ class Functions {
 		}
 	}
 
-	async addToFavorite(productId, userId) {
+	async addOneTo(productId, userId, table) {
 		try {
 			const product = new FavoriteProduct(productId, userId)
-			const responseProduct = await knex('in_favorite').insert(product).returning("*").limit(1).then(r => r[0])
-			return responseProduct
-		} catch (err) {
-			console.error(err.message)
-		}
-	}
-
-	async addToCart(productId, userId) {
-		try {
-			const product = new CartProduct(productId, userId)
-			const responseProduct = await knex('in_cart').insert(product).returning("*").limit(1).then(r => r[0])
+			const responseProduct = await knex(table)
+			.insert(product)
+			.returning("*")
+			.limit(1)
+			.then(r => r[0])
 			return responseProduct
 		} catch (err) {
 			console.error(err.message)
@@ -237,14 +231,55 @@ class Functions {
 		return products;
 	};
 
-	async deleteFromFavorite(productId, userId) {
-		const products = await knex('in_favorite').where({ product_id: productId, user_id: userId }).del().returning("*").limit(1).then(r => r[0])
-		return products;
+	async deleteOneFrom(productId, userId, table) {
+		const product = await knex(table)
+		.where({ product_id: productId, user_id: userId })
+		.del()
+		.returning("*")
+		.limit(1)
+		.then(r => r[0])
+		return product;
+	}
+
+	async deleteOneImage(imageId, productId, table) {
+		const image = await knex(table)
+		.where({ product_id: productId, id: imageId })
+		.del()
+		.returning("*")
+		.limit(1)
+		.then(r => r[0])
+		return product;
+	}
+
+	async editProduct(productParams, user) {
+		try {
+			const product = await knex('products').where({ id: productParams.id, user_id: user.id }).update({
+				name: productParams.name,
+				description: productParams.description,
+				price: productParams.price,
+			}).returning("*").limit(1).then(r => r[0])
+			return product
+		} catch (err) {
+			console.error(err.message)
+		}
 	};
 
-	async deleteFromCart(productId, userId) {
-		const products = await knex('in_cart').where({ product_id: productId, user_id: userId }).del().returning("*").limit(1).then(r => r[0])
-		return products;
+	async editProductImages(imageData, productId) {
+		try {
+			await Promise.all(imageData.deletedImageIds
+				.map(
+					imageId => this.deleteOneImage(imageId, productId, "product_images")
+				)
+			)
+			return await Promise.all(imageData.addedImages
+				.map(async (image) => {
+					const newImg = new ProductImage(image, productId)
+					return await knex('product_images').insert(newImg)
+				})
+			)
+		} catch (err) {
+			console.error(err.message)
+		}
 	};
 
 	async getProducts(ids = null) {

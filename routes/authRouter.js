@@ -26,6 +26,9 @@ router.post("/cart", [authMiddleware], controller.addToCart)
 router.post("/create-new-product", [authMiddleware], controller.createNewProduct)
 
 router.delete("/favorite", [authMiddleware], controller.deleteFromFavorite)
-router.delete("/cart", [authMiddleware], controller.deleteFromCart)
+router.delete("/cart", [authMiddleware], controller.deleteFromCart) 
+router.delete("/delete-product", [authMiddleware], controller.deleteProduct) 
+
+router.put("/edit-product", [authMiddleware], controller.editProduct) 
 
 module.exports = router

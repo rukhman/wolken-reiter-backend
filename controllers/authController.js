@@ -4,6 +4,7 @@ const jwt = require('jsonwebtoken');
 
 class ShortUser {
 	constructor(userParams) {
+		this.id = userParams.id
 		this.name = userParams.name
 		this.surname = userParams.surname
 		this.email = userParams.email
@@ -114,6 +115,7 @@ class AuthController {
 
 	async refreshToken(req, res) {
 		try {
+			console.log(req.headers)
 			const token = JSON.parse(req.headers['refresh-token'])
 			const ip = req.headers['visitor-id']
 			const tokens = await fn.getTokensByRefresh(token, ip)
@@ -134,7 +136,7 @@ class AuthController {
 
 	async addToFavorite(req, res) {
 		try {
-			const product = await fn.addToFavorite(req.body.product, req.user.id)
+			const product = await fn.addOneTo(req.body.product, req.user.id, "in_favorite")
 			res.json(product)
 		} catch(err) {
 			res.status(400).json({message: err.message});
@@ -143,7 +145,7 @@ class AuthController {
 
 	async addToCart(req, res) {
 		try {
-			const product = await fn.addToCart(req.body.product, req.user.id)
+			const product = await fn.addOneTo(req.body.product, req.user.id, "in_cart")
 			res.json(product)
 		} catch(err) {
 			res.status(400).json({message: err.message});
@@ -170,8 +172,8 @@ class AuthController {
 
 	async deleteFromFavorite(req, res) {
 		try {
-			const products = await fn.deleteFromFavorite(req.query.product, req.user.id)
-			res.json(products)
+			const product = await fn.deleteOneFrom(req.query.product, req.user.id, 'in_favorite')
+			res.json(product)
 		} catch(err) {
 			res.status(400).json({message: err.message});
 		}
@@ -179,8 +181,30 @@ class AuthController {
 
 	async deleteFromCart(req, res) {
 		try {
-			const products = await fn.deleteFromCart(req.query.product, req.user.id)
-			res.json(products)
+			const product = await fn.deleteOneFrom(req.query.product, req.user.id, 'in_cart')
+			res.json(product)
+		} catch(err) {
+			res.status(400).json({message: err.message});
+		}
+	}
+
+	async deleteProduct(req, res) {
+		try {
+			const product = await fn.deleteOneFrom(req.query.product, req.user.id, 'products')
+			res.json(product)
+		} catch(err) {
+			res.status(400).json({message: err.message});
+		}
+	}
+
+	async editProduct(req, res) {
+		try {
+			const images = await fn.editProductImages(req.body.imageData, req.body.id)
+			const product = await fn.editProduct(req.body, req.user)
+			res.json({
+				product,
+				images
+			})
 		} catch(err) {
 			res.status(400).json({message: err.message});
 		}
