@@ -139,12 +139,12 @@ class Functions {
 		try {
 			const decodedData = jwt.verify(token, process.env.SECRET)
 			const id = decodedData.id
-			const ips = "123"
-			const refresh = await knex('refresh_tokens').where({ user_id: id, ip }).then(r => r[0])
-			if (!refresh) {
-				await knex('refresh_tokens').del({ user_id: id })
-				return
-			}
+			// const refresh = await knex('refresh_tokens').where({ user_id: id, ip }).then(r => r[0])//?
+			// if (!refresh) {//?
+			// 	await knex('refresh_tokens').del({ user_id: id })
+			// 	return
+			// }
+
 			const roles = await this.getUserRoles(id)
 			const newRefreshToken = await this.generateRefreshToken(id, ip)
 			const newAccessToken = await this.generateAccessToken(id, roles)

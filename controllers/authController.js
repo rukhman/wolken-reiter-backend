@@ -115,10 +115,9 @@ class AuthController {
 
 	async refreshToken(req, res) {
 		try {
-			console.log(req.headers)
 			const token = JSON.parse(req.headers['refresh-token'])
 			const ip = req.headers['visitor-id']
-			const tokens = await fn.getTokensByRefresh(token, ip)
+			const tokens = await fn.getTokensByRefresh(token, ip)//?
 			res.json(tokens)
 		} catch(err) {
 			res.status(400).json({message: err.message});
